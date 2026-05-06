@@ -1,0 +1,7 @@
+vosk
+pyaudio
+pygame
+pyttsx3
+flask
+groq
+pyserial

@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Robot Command Center</title>
+  <style>
+    :root {
+      --bg-1: #09131f;
+      --bg-2: #16324a;
+      --panel: rgba(255, 255, 255, 0.08);
+      --panel-border: rgba(255, 255, 255, 0.25);
+      --text: #e8f1f8;
+      --muted: #b7cbdb;
+      --ok: #47d16c;
+      --warn: #ffbf47;
+      --danger: #ff5f56;
+      --accent: #55d2ff;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", "Trebuchet MS", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 600px at 10% -10%, #1d4f74 0%, transparent 60%),
+        radial-gradient(900px 500px at 100% 0%, #0f7b7e 0%, transparent 50%),
+        linear-gradient(160deg, var(--bg-1), var(--bg-2));
+      padding: 20px;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 16px;
+      animation: fadeIn 700ms ease;
+    }
+
+    .hero {
+      grid-column: 1 / -1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 20px;
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      backdrop-filter: blur(10px);
+    }
+
+    .title {
+      font-size: clamp(1.2rem, 2vw, 1.7rem);
+      letter-spacing: 0.04em;
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .badge {
+      padding: 7px 12px;
+      border-radius: 999px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-size: 0.72rem;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--panel-border);
+      border-radius: 16px;
+      padding: 16px;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.24);
+    }
+
+    .panel h3 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      letter-spacing: 0.04em;
+      color: #d9ecfa;
+    }
+
+    .kv {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+      gap: 10px;
+    }
+
+    .kv:last-child {
+      border-bottom: 0;
+    }
+
+    .kv .k {
+      color: var(--muted);
+    }
+
+    .status-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 7px;
+      vertical-align: baseline;
+    }
+
+    .servo {
+      margin-bottom: 12px;
+    }
+
+    .servo label {
+      display: block;
+      margin-bottom: 5px;
+      color: #d2e6f5;
+      font-size: 0.92rem;
+    }
+
+    .bar {
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.15);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .fill {
+      height: 100%;
+      width: 0%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #2adf97, #56c9ff);
+      transition: width 220ms ease;
+    }
+
+    .bubble {
+      margin: 0;
+      background: rgba(0, 0, 0, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.17);
+      border-radius: 12px;
+      padding: 10px;
+      min-height: 56px;
+      line-height: 1.4;
+      color: #eff8ff;
+    }
+
+    .error {
+      color: #ffd8d8;
+      background: rgba(255, 95, 86, 0.2);
+      border-color: rgba(255, 95, 86, 0.45);
+    }
+
+    .controls {
+      grid-column: 1 / -1;
+    }
+
+    .control-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .text-input {
+      flex: 1 1 320px;
+      min-height: 46px;
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      background: rgba(0, 0, 0, 0.2);
+      color: var(--text);
+      padding: 10px 12px;
+      outline: none;
+    }
+
+    .btn {
+      border-radius: 10px;
+      border: 1px solid rgba(255, 255, 255, 0.28);
+      background: rgba(85, 210, 255, 0.18);
+      color: var(--text);
+      padding: 10px 14px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .btn:hover {
+      filter: brightness(1.08);
+    }
+
+    .btn-secondary {
+      background: rgba(255, 191, 71, 0.18);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <section class="hero">
+      <div>
+        <h1 class="title">Robot Command Center</h1>
+        <p class="subtitle">Live AI + hardware telemetry</p>
+      </div>
+      <div id="statusBadge" class="badge">Booting</div>
+    </section>
+
+    <section class="panel">
+      <h3>System</h3>
+      <div class="kv"><span class="k">AI Provider</span><span id="aiProvider">-</span></div>
+      <div class="kv"><span class="k">Model</span><span id="aiModel">-</span></div>
+      <div class="kv"><span class="k">Arduino Port</span><span id="port">-</span></div>
+      <div class="kv"><span class="k">Serial Link</span><span id="serialLink">-</span></div>
+      <div class="kv"><span class="k">Voice Mode</span><span id="voiceMode">ON</span></div>
+      <div class="kv"><span class="k">Updated At</span><span id="updatedAt">-</span></div>
+    </section>
+
+    <section class="panel controls">
+      <h3>Text Control</h3>
+      <div class="control-row">
+        <input id="textInput" class="text-input" type="text"
+          placeholder="Type command or question... e.g. head left, servo 3 up" />
+        <button id="sendBtn" class="btn">Send Text</button>
+        <button id="voiceOffBtn" class="btn btn-secondary">Voice OFF</button>
+        <button id="voiceOnBtn" class="btn">Voice ON</button>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>Hardware Motion</h3>
+      <div class="servo">
+        <label>Left Hand (<span id="s1v">0</span>)</label>
+        <div class="bar">
+          <div id="s1" class="fill"></div>
+        </div>
+      </div>
+      <div class="servo">
+        <label>Right Hand (<span id="s2v">0</span>)</label>
+        <div class="bar">
+          <div id="s2" class="fill"></div>
+        </div>
+      </div>
+      <div class="servo">
+        <label>Head (<span id="s3v">0</span>)</label>
+        <div class="bar">
+          <div id="s3" class="fill"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <h3>You Said</h3>
+      <p id="heard" class="bubble">Waiting for speech...</p>
+    </section>
+
+    <section class="panel">
+      <h3>Robot Response</h3>
+      <p id="response" class="bubble">Waiting for AI response...</p>
+    </section>
+
+    <section class="panel">
+      <h3>Last Error</h3>
+      <p id="error" class="bubble error">No errors</p>
+    </section>
+  </main>
+
+  <script>
+    function clampServo(deg) {
+      const value = Number.isFinite(deg) ? deg : 0;
+      return Math.max(0, Math.min(180, value));
+    }
+
+    function statusColor(status) {
+      if (status === "listening" || status === "idle") return "var(--ok)";
+      if (status === "processing" || status === "speaking") return "var(--warn)";
+      if (status && status.includes("error")) return "var(--danger)";
+      return "var(--accent)";
+    }
+
+    function applyServo(fillId, valueId, value) {
+      const safe = clampServo(value);
+      document.getElementById(fillId).style.width = `${(safe / 180) * 100}%`;
+      document.getElementById(valueId).textContent = safe;
+    }
+
+    async function setVoiceMode(enabled) {
+      try {
+        await fetch('/api/voice-mode', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled })
+        });
+      } catch (err) {
+        document.getElementById('error').textContent = `Voice mode error: ${err.message}`;
+      }
+    }
+
+    async function sendText() {
+      const input = document.getElementById('textInput');
+      const text = (input.value || '').trim();
+      if (!text) {
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/text', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ text })
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          throw new Error(data.message || 'Request failed');
+        }
+        input.value = '';
+        await refresh();
+      } catch (err) {
+        document.getElementById('error').textContent = `Send text error: ${err.message}`;
+      }
+    }
+
+    async function refresh() {
+      try {
+        const res = await fetch('/api/state', { cache: 'no-store' });
+        const data = await res.json();
+
+        const status = data.status || 'unknown';
+        const badge = document.getElementById('statusBadge');
+        badge.textContent = status;
+        badge.style.borderColor = statusColor(status);
+        badge.style.color = statusColor(status);
+
+        document.getElementById('aiProvider').textContent = data.ai_provider || '-';
+        document.getElementById('aiModel').textContent = data.model || '-';
+        document.getElementById('port').textContent = data.port || '-';
+        document.getElementById('serialLink').textContent = data.serial_connected ? 'Connected' : 'Disconnected';
+        document.getElementById('voiceMode').textContent = data.voice_enabled ? 'ON' : 'OFF';
+        document.getElementById('updatedAt').textContent = data.updated_at || '-';
+
+        const servos = Array.isArray(data.servo_positions) ? data.servo_positions : [0, 0, 0];
+        applyServo('s1', 's1v', servos[0]);
+        applyServo('s2', 's2v', servos[1]);
+        applyServo('s3', 's3v', servos[2]);
+
+        document.getElementById('heard').textContent = data.last_heard || 'Waiting for speech...';
+        document.getElementById('response').textContent = data.last_response || 'Waiting for AI response...';
+        document.getElementById('error').textContent = data.last_error || 'No errors';
+      } catch (err) {
+        document.getElementById('error').textContent = `Frontend refresh error: ${err.message}`;
+      }
+    }
+
+    document.getElementById('sendBtn').addEventListener('click', sendText);
+    document.getElementById('voiceOffBtn').addEventListener('click', () => setVoiceMode(false));
+    document.getElementById('voiceOnBtn').addEventListener('click', () => setVoiceMode(true));
+    document.getElementById('textInput').addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        sendText();
+      }
+    });
+
+    refresh();
+    setInterval(refresh, 350);
+  </script>
+</body>
+
+</html>
